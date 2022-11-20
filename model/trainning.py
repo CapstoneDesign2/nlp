@@ -69,16 +69,16 @@ except OSError as exc: # Python >2.5
         pass
     else: raise
 #파일 오픈
-result = open(f"./checkpoint/{args['test_name']}/{args['result_file']}", 'w')
+#result = open(f"./checkpoint/{args['test_name']}/{args['result_file']}", 'w')
 #args 에 파일 stream 넘겨주기
 #args['result_file']=result
 
-for arg in vars(user_input):
-    temp = getattr(user_input, arg)
-    print(f"{arg} : {temp}", end = ' | ', file=result)
-print(file=result)
+#for arg in vars(user_input):
+#    temp = getattr(user_input, arg)
+#    print(f"{arg} : {temp}", end = ' | ', file=result)
+#print(file=result)
 
-result.close()
+#result.close()
 
 
 #check point 와 early_stop_callback을 설정해 준다.
@@ -86,7 +86,6 @@ checkpoint_callback = ModelCheckpoint(
         save_top_k=2,
         monitor="val_loss",
         mode="min",
-        dirpath=f"./checkpoint/{args['test_name']}",
         filename="{epoch}-{val_loss:.2f}"
     )
 

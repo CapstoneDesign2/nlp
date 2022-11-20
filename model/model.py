@@ -37,7 +37,7 @@ class Model(LightningModule):
         TO DO
         여긴 단일 모델
         '''
-        return self.model(input_ids=input_ids, labels=labels)
+        return self.model(  =input_ids, labels=labels)
 
     def step(self, batch, batch_idx):
         data, labels = batch
@@ -101,7 +101,7 @@ class Model(LightningModule):
 
         print(f'[Epoch {self.trainer.current_epoch} {state.upper()}] Loss: {loss}')
         #print(f'[Epoch {self.trainer.current_epoch} {state.upper()}] Loss: {loss}', file=result)
-        print(f'acc : {total_acc : .5f} | prec : {total_prec : .5f} | rec : {total_rec : .5f} | f1 : {total_f1 : .5f}', file=result)
+        #print(f'acc : {total_acc : .5f} | prec : {total_prec : .5f} | rec : {total_rec : .5f} | f1 : {total_f1 : .5f}', file=result)
         
         self.log(state+'_loss', float(loss), on_epoch=True, prog_bar=True)
         self.log(state+'_acc', float(total_acc), on_epoch=True, prog_bar=True)
