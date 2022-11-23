@@ -13,11 +13,10 @@ model_path = os.path.join(root_path, '../models')
 sys.path.append(model_path)
 # inferTest 불러오기
 
-from single_task_model import Model
+from model import Model
 from clean import clean
 
-MODEL_PATH = "../checkpoint/single_kcbert-l_0.000005_0/epoch=2-val_loss=0.07.ckpt"
-#HPARAMS_PATH = "./lightning_logs/version_2/hparams.yaml"
+MODEL_PATH = "./checkpoints/*.ckpt"
 
 from glob import glob
 

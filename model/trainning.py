@@ -20,7 +20,7 @@ args = {
 'max_length': 150,  # Max Length input size
 'train_data_path': "",  # Train Dataset file 
 'val_data_path': "",  # Validation Dataset file 
-'test_mode': True,  # Test Mode enables `fast_dev_run`
+'test_mode': False,  # Test Mode enables `fast_dev_run`
 'optimizer': 'AdamW',  # AdamW vs AdamP
 'lr_scheduler': 'exp',  # ExponentialLR vs CosineAnnealingWarmRestarts
 'fp16': True,  # Enable train on FP16(if GPU)
@@ -59,14 +59,6 @@ for arg in vars(user_input):
     temp = getattr(user_input, arg)
     args[arg] = temp
 
-
-# make file directory
-try:
-    os.makedirs(f"./checkpoint/{args['test_name']}")
-except OSError as exc: # Python >2.5
-    if exc.errno == errno.EEXIST and os.path.isdir(f"./checkpoint/{args['test_name']}"):
-        pass
-    else: raise
 #파일 오픈
 #result = open(f"./checkpoint/{args['test_name']}/{args['result_file']}", 'w')
 #args 에 파일 stream 넘겨주기
