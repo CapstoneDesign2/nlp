@@ -10,6 +10,8 @@ from pytorch_lightning import LightningModule
 from transformers import AdamW, AutoModelForSequenceClassification, AutoTokenizer, BertModel
 
 from sklearn.metrics import multilabel_confusion_matrix
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
+from sklearn.metrics import hamming_loss
 
 import re
 import emoji
@@ -23,7 +25,7 @@ class Model(LightningModule):
     def __init__(self, **kwargs):
         super().__init__()
         self.save_hyperparameters() # 이 부분에서 self.hparams에 위 kwargs가 저장된다.
-        
+        self.LABEL = None
         self.model = AutoModelForSequenceClassification.from_pretrained(self.hparams.pretrained_model, return_dict=True, num_labels=5)
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.hparams.pretrained_tokenizer
@@ -37,7 +39,7 @@ class Model(LightningModule):
         TO DO
         여긴 단일 모델
         '''
-        return self.model(  =input_ids, labels=labels)
+        return self.model(input_ids=input_ids, labels=labels)
 
     def step(self, batch, batch_idx):
         data, labels = batch
@@ -76,42 +78,41 @@ class Model(LightningModule):
         # 이유는 모르겠지만 이렇게 하면 된다.
         for i in outputs:
             for true in i['y_true']:
-                y_true.append(np.array([ x for x in true]))
+                y_true.append(np.array([int(x) for x in true]))
 
             for pred in i['y_pred']:
                 y_pred.append(np.array([1 if x > THRESHOLD else 0 for x in pred]))
         
 
         confusion_mat = multilabel_confusion_matrix(y_true, y_pred)
-
-        #file open
-        #result = open(f"./checkpoint/{self.hparams.test_name}/{self.hparams.result_file}", 'a')
-
-        total_acc = 0; total_prec = 0; total_rec = 0; total_f1 = 0
-
-        for idx ,x in enumerate(confusion_mat):
-            acc =  (x[0][0] + x[1][1]) / (x[0][0] + x[0][1] + x[1][0] + x[1][1]) if (x[0][0] + x[0][1] + x[1][0] + x[1][1]) > 0 else 0
-            prec =  x[1][1] / (x[0][1] + x[1][1])  if (x[0][1] + x[1][1]) > 0 else 0
-            rec = x[1][1] / (x[1][0] + x[1][1]) if (x[1][0] + x[1][1]) > 0 else 0
-            f1 = 2 * rec * prec / (rec + prec) if (rec + prec) > 0 else 0
-            total_acc+=acc; total_prec+=prec; total_rec+=rec; total_f1+=f1
-            print(f'class {idx : .5f} |  acc : {acc : .5f} | prec : {prec : .5f} | rec : {rec : .5f} | f1 : {f1 : .5f}')
-            
-        total_acc /= 11; total_prec /= 11; total_rec /= 11; total_f1 /= 11
-
-        print(f'[Epoch {self.trainer.current_epoch} {state.upper()}] Loss: {loss}')
-        #print(f'[Epoch {self.trainer.current_epoch} {state.upper()}] Loss: {loss}', file=result)
-        #print(f'acc : {total_acc : .5f} | prec : {total_prec : .5f} | rec : {total_rec : .5f} | f1 : {total_f1 : .5f}', file=result)
         
+        print(f'[Epoch {self.trainer.current_epoch} {state.upper()}] Loss: {loss}')
+
+        
+        print(y_true)
+        print(y_pred)
+        print(self.LABEL)
+
+        total_acc = accuracy_score(y_true, y_pred)
+        total_prec= precision_score(y_true, y_pred, average='macro')
+        total_rec = recall_score(y_true, y_pred, average='macro')
+        total_prec = f1_score(y_true, y_pred, average='macro')
+        hamming = hamming_loss(y_true, y_pred)
+
+        # total_prec= precision_score(y_true, y_pred, labels=self.LABEL, average='macro')
+        # total_rec = recall_score(y_true, y_pred, labels=self.LABEL, average='macro')
+        # total_prec = f1_score(y_true, y_pred, labels=self.LABEL, average='macro')
+        # hamming_loss = hamming_loss(y_true, y_pred, labels=self.LABEL, average='macro')
+
         self.log(state+'_loss', float(loss), on_epoch=True, prog_bar=True)
         self.log(state+'_acc', float(total_acc), on_epoch=True, prog_bar=True)
         self.log(state+'_prec', float(total_prec), on_epoch=True, prog_bar=True)
         self.log(state+'_rec', float(total_rec), on_epoch=True, prog_bar=True)
-        self.log(state+'_f1', float(total_f1), on_epoch=True, prog_bar=True)
+        self.log(state+'_hamming', float(hamming), on_epoch=True, prog_bar=True)
         
         #file close
         #result.close()
-
+        # hamming loss 돌려줄까?
         return {'loss': loss}
     
     def training_epoch_end(self, outputs):
@@ -184,7 +185,8 @@ class Model(LightningModule):
         df = self.read_data(path)
         df = self.preprocess_dataframe(df)
         LABEL_COLUMNS = df.columns.tolist()[1:]
-        
+        self.LABEL = LABEL_COLUMNS
+
         #일단 df에서 다 0 아니면 1로 만들어준다
         for i in LABEL_COLUMNS:
             df[i] = df[i].map(lambda x : 1 if x > 0 else 0)
