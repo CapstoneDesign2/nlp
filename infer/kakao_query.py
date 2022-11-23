@@ -1,11 +1,11 @@
-from unittest import result
 import requests, json, os, sys, time
-import pymysql
 import sqlalchemy as db
+import pymysql
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from db_class import StoreClass, STORE_TABLE_NAME
 from db_configure import *
+from dotenv import load_dotenv
 
 
 location_return_url = ''
@@ -42,10 +42,10 @@ def facilities_return(x, y, radius, keyword):
     '''
     global result_dict
     global json_file
-
+    
     current_page = 1
     headers = {
-        'Authorization': f'KakaoAK {os.environ["kakao"]}',
+        'Authorization': f'KakaoAK {os.environ.get("kakao")}',
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     

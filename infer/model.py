@@ -9,7 +9,6 @@ from pytorch_lightning import LightningModule
 
 from transformers import AdamW, AutoModelForSequenceClassification, AutoTokenizer, BertModel
 
-from sklearn.metrics import multilabel_confusion_matrix
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 from sklearn.metrics import hamming_loss
 

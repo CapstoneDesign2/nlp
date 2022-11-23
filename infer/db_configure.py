@@ -1,13 +1,19 @@
 import os
+from dotenv import load_dotenv
 
-host=os.environ['capstone_db_url']
-user=os.environ['capstone_user_id'] # server 에서는 os.env 써야한다!
-passwd=os.environ['capstone_user_passwd'] # server 에서는 os.env 써야한다!
+# .env 사용하기 위한거임
+
+load_dotenv()
+
+host=os.environ.get('capstone_db_url')
+user=os.environ.get('capstone_user_id')
+passwd=os.environ.get('capstone_user_passwd')
+
+#print(host, user, passwd)
+
 database='cafeishorse'
 
 #os
-
-
 #host='localhost'
 #user='root'
 #passwd='root'

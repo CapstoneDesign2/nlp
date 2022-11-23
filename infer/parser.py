@@ -1,23 +1,19 @@
-from unittest import result
 import requests
-import pymysql
 import sqlalchemy as db
+import infer
+
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from db_class import StoreClass, CommentClass, STORE_TABLE_NAME, COMMENT_TABLE_NAME
 from db_configure import *
-from one_sentence_keyword import *
-from kiwipiepy.utils import Stopwords
 
-import pandas as pd
-import numpy as np
-import math
-import json
-import matplotlib.pyplot as plt
-import seaborn as sns
-import time
-import re
-from bs4 import BeautifulSoup
+
+# 가성비 effective
+# 청결 clean
+# 맛 tasty 
+# 분위기 vibe
+# 친절 kind
+LABEL_COLUMNS = ['effective', 'clean', 'tasty', 'vibe', 'kind']
 
 class LenError(Exception):
     def __str__(self):
@@ -63,10 +59,8 @@ def comment_db_write(comment_list, store_id):
     # 키워드 dictionary 미리 선언을 한다.
     # 이후에 comment_list 를 순회하면서 장점을 전부 더해서 store 테이블에 넣어준다.
     # 키워드 dictionary {} 값은 모두 0으로 초기화
-    
-    
-    
-    
+    total_good_list = [0, 0, 0, 0, 0] # 댓글에서 나오는 장점의 총합
+
     for comment in comment_list:
         # datetime 형식으로 바꾸는게 낫겠지?        
         # 문자열 없거나 길이 초과시 대처법
@@ -91,8 +85,12 @@ def comment_db_write(comment_list, store_id):
         
         #장점 classification 해주기
         #good_side = infer()
-        #dictionary에 각각 더해준다.
 
+        good_list = infer.judge(comment)
+        #dictionary에 각각 더해준다.
+        
+        for idx in range(0, len(good_list)):
+            total_good_list[idx] += good_list[idx]
         
         # 또한 photoCnt 를 통해서 0이 아니라면 사진을 받아오는 방식을 사용한다.
         # 사진은 문자열로 받을지 아니면 링크로 받을지는 아직 미정
@@ -110,14 +108,25 @@ def comment_db_write(comment_list, store_id):
                              userCommentCount=comment['userCommentCount'],
                              userCommentAverageScore=comment['userCommentAverageScore'],
                              date=comment['date'],
-                             store_id=store_id
+                             store_id=store_id,
+                             effective=good_list[0],
+                             clean=good_list[1],
+                             tasty=good_list[2],
+                             vibe=good_list[3],
+                             kind=good_list[4]
                             )
         session.add(c)
     
-    # dictionary를 순회하면서 여기서 키워드 5개를 update 한다. 
-    #session.query(StoreClass).filter_by(id=store_id).update({})
-    
-    
+    session\
+    .query(StoreClass)\
+    .filter_by(id=store_id)\
+    .update({
+            'effective' : total_good_list[0], 
+            'clean' : total_good_list[1],
+            'tasty' : total_good_list[2],
+            'vibe' : total_good_list[3],
+            'kind' : total_good_list[4],
+            })
 
 def comment_score_write(score_sum, score_count, store_id):
     #comment scoresum scorecount
@@ -142,7 +151,7 @@ def one_store_analyze(store_id):
     response = requests.get(info_url).json()
 
     # 만약에 comment라는 key 값이 없으면 그냥 return
-
+    
     # comment 보기 전에 mainphotourl 은 찾고 간다.
     # 없으면 그냥 냅두고~
     # 일단 varchar(512로 간다.)
@@ -169,7 +178,7 @@ def one_store_analyze(store_id):
     #print(response.get('comment'))
     comment_score_write(response.get('comment').get('scoresum'), response.get('comment').get('scorecnt'), store_id)
     comment_db_write(response['comment']['list'], store_id)
-    
+
     # basicinfo mainphotorul
     # 카페 chart 안에서 update 하는 식으로 한다. 
     # 이거 update query 보내면 될꺼 같음
@@ -183,7 +192,7 @@ def read_store_from_database():
     
     stmt = db.select(StoreClass)
     # store 의 id 모음
-    ret = [x.id for x in session.scalars(stmt)]    
+    ret = [x.id for x in session.scalars(stmt)]
     
     return ret
 
@@ -194,12 +203,11 @@ if __name__ == '__main__':
     
     
     # 여기에 모델 불러와서 infer를 하는 방식이 가능할꺼 같음
+    
+    
+    
     # model.어쩌구
     # 그리고 comment 가져오는 함수 안에서 infer 하기
-    
-    stopwords = Stopwords()
-    for key, value in stopwords_dict.items():
-        stopwords.add((key, value))
     
     engine = db.create_engine(f'mysql+pymysql://{user}:{passwd}@{host}:{port}/{database}')
     Session = sessionmaker(engine)

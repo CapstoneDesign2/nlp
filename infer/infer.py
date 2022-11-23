@@ -8,15 +8,12 @@ from pytorch_lightning import LightningModule, Trainer, seed_everything
 # loop = True;
 
 # inferTest 불러오기
-root_path = sys.path[0]
-model_path = os.path.join(root_path, '../models')
-sys.path.append(model_path)
-# inferTest 불러오기
 
 from model import Model
 from clean import clean
 
 MODEL_PATH = "./checkpoints/*.ckpt"
+THRESHOLD = 0.5
 
 from glob import glob
 
@@ -32,19 +29,26 @@ def main():
         judge(sentence=sentence)
     
 def infer(x):
-    return model(**model.tokenizer(x, return_tensors='pt'))
+    return model(**model.tokenizer(x, return_tensors='pt', truncation=True))
 def judge(sentence):
     sentence=str(sentence)
+    LABEL_COLUMNS= ['effective', 'clean', 'tasty', 'vibe', 'kind']
     if sentence == "":
-        print("빈 문장")
+        #for l, v in zip(LABEL_COLUMNS, [0, 0, 0, 0, 0]):
+        #    print(l, v)
+        
+        return [0, 0, 0, 0, 0]
     else:
-        LABEL_COLUMNS=["가성비", "청결", "맛", "분위기", "친절"]
         test_prediction = infer(clean(sentence))
         output = torch.sigmoid(test_prediction.logits)
         output = output.detach().flatten().numpy()
-        for i in zip(LABEL_COLUMNS, output):
-            print(f"{i[0]} : {i[1]}")
-        return 0
+        #for l, v in zip(LABEL_COLUMNS, output):
+        #    print(l, v)
+
+        real_output = [1 if x > THRESHOLD else 0 for x in output]
+
+        return real_output
+        
     
 if __name__ == "__main__":
     main()

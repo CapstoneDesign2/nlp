@@ -1,7 +1,6 @@
 import argparse
 import os
 import torch
-import errno
 
 from model import Model
 
