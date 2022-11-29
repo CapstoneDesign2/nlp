@@ -15,7 +15,7 @@ args = {
 'pretrained_tokenizer': '',  # Optional, Transformers Tokenizer Name. Overrides `pretrained_model`
 'batch_size': 4,
 'lr': 5e-6,  # Starting Learning Rate
-'epochs': 5,  # Max Epochs
+'epochs': 10,  # Max Epochs
 'max_length': 150,  # Max Length input size
 'train_data_path': "",  # Train Dataset file 
 'val_data_path': "",  # Validation Dataset file 
@@ -40,12 +40,13 @@ parser = argparse.ArgumentParser(description="usage")
 
 parser.add_argument('--batch_size', type=int, default=4, help='size of batch')
 parser.add_argument('--lr', type=float, default=5e-6, help='number of learning rate')
-parser.add_argument('--epochs', type=int, default=1, help='number of epochs')
+parser.add_argument('--epochs', type=int, default=10, help='number of epochs')
 parser.add_argument('--train_data_path', type=str, default='../data/train.tsv', help='train file path')
 parser.add_argument('--val_data_path', type=str, default='../data/valid.tsv', help='validation file path')
 parser.add_argument('--optimizer', type=str, default='AdamW', help='type of optimizer')
 parser.add_argument('--lr_scheduler', type=str, default='exp', help='type of learning scheduler')
 parser.add_argument('--sensitive', type=int, default=0, help='how sensitive 0이면 sensitive 하기 1 이면 둔감')
+parser.add_argument('--pretrained_model', type=str, default='beomi/kcbert-large', help='type of model')
 #parser.add_argument('--test_name', type=str, default='no_name', help='실험 이름 / directory 로 사용한다')
 
 
@@ -73,14 +74,14 @@ for arg in vars(user_input):
 
 #check point 와 early_stop_callback을 설정해 준다.
 checkpoint_callback = ModelCheckpoint(
-        save_top_k=2,
-        monitor="val_loss",
+        save_top_k=5,
+        monitor="val_hamming",
         mode="min",
-        filename="{epoch}-{val_loss:.2f}"
+        filename="{epoch}-{val_hamming:.2f}"
     )
 
 early_stop_callback = EarlyStopping(
-        monitor="val_loss",
+        monitor="val_hamming",
         min_delta=0.00,
         patience=2,
         verbose=True,
@@ -102,7 +103,6 @@ trainer = Trainer(
     deterministic=torch.cuda.is_available(),
     gpus=-1 if torch.cuda.is_available() else None,
     precision=16 if args['fp16'] else 32,
-    progress_bar_refresh_rate=30,
     callbacks = [early_stop_callback, checkpoint_callback]
     #callback?
     # For TPU Setup

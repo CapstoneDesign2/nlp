@@ -1,0 +1,15 @@
+FROM pytorch/pytorch
+ 
+RUN pip install pytorch_lightning && \
+    pip install transformers && \
+    pip install sklearn && \
+    pip install emoji && \
+    pip install pandas && \
+    pip install soynlp && \
+    pip install pandas && \
+    pip install numpy && \
+    pip install requests && \
+    pip install python-dotenv && \
+    pip install pymysql && \
+    pip install python-telegram-bot && \
+    pip install SQLAlchemy
