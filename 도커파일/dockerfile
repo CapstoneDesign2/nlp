@@ -12,4 +12,5 @@ RUN pip install pytorch_lightning && \
     pip install python-dotenv && \
     pip install pymysql && \
     pip install python-telegram-bot && \
+    pip install python-dotenv && \
     pip install SQLAlchemy
