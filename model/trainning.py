@@ -13,7 +13,7 @@ args = {
 'random_seed': 42, # Random Seed
 'pretrained_model': 'beomi/kcbert-large',  # Transformers PLM name
 'pretrained_tokenizer': '',  # Optional, Transformers Tokenizer Name. Overrides `pretrained_model`
-'batch_size': 4,
+'batch_size': 32,
 'lr': 5e-6,  # Starting Learning Rate
 'epochs': 10,  # Max Epochs
 'max_length': 150,  # Max Length input size
@@ -38,7 +38,6 @@ python3 trainning.py --lr 5e-10 --epochs 10
 '''
 parser = argparse.ArgumentParser(description="usage")
 
-parser.add_argument('--batch_size', type=int, default=4, help='size of batch')
 parser.add_argument('--lr', type=float, default=5e-6, help='number of learning rate')
 parser.add_argument('--epochs', type=int, default=10, help='number of epochs')
 parser.add_argument('--train_data_path', type=str, default='../data/train.tsv', help='train file path')
