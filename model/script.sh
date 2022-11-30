@@ -46,14 +46,14 @@ for (( j = 0 ; j < ${#pretrained_model_list[@]} ; j++ ))  ; do
         for (( i = 0 ; i < ${#train_path[@]} ; i++ ))  ; do
 START=$(date +%s)
 
-#python3 message.py \
-#--command \
-#"python3 trainning.py\
-#--pretrained_model ${pretrained_model_list[$j]} \
-#--lr ${lr} \
-#--now_number $NOW_TEST_NUMBER \
-#--total_number $TOTAL_TEST_NUMBER \
-#"
+python3 message.py \
+--command \
+"python3 trainning.py\
+--pretrained_model ${pretrained_model_list[$j]} \
+--lr ${lr} \
+--now_number $NOW_TEST_NUMBER \
+--total_number $TOTAL_TEST_NUMBER \
+"
 
 echo "
 python3 trainnig.py \
@@ -62,12 +62,13 @@ python3 trainnig.py \
 --train_data_path ${train_path[$i]} \
 "
 
-#python3 trainning.py \
-#--pretrained_model ${pretrained_model_list[$j]} \
-#--lr ${lr} \
-#--train_data_path ${train_path[$i]} \
-#END=$(date +%s)
-#DIFF=$(( $END - $START ))
+python3 trainning.py \
+--pretrained_model ${pretrained_model_list[$j]} \
+--lr ${lr} \
+--train_data_path ${train_path[$i]}
+
+END=$(date +%s)
+DIFF=$(( $END - $START ))
 
 python3 message.py \
 --command \
