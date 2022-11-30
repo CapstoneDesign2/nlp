@@ -75,15 +75,15 @@ for arg in vars(user_input):
 #check point 와 early_stop_callback을 설정해 준다.
 checkpoint_callback = ModelCheckpoint(
         save_top_k=5,
-        monitor="val_hamming",
+        monitor="val_loss",
         mode="min",
         filename="{epoch}-{val_hamming:.2f}"
     )
 
 early_stop_callback = EarlyStopping(
-        monitor="val_hamming",
+        monitor="val_loss",
         min_delta=0.00,
-        patience=2,
+        patience=3,
         verbose=True,
         mode="min",
         check_on_train_epoch_end=True
