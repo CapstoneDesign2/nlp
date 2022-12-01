@@ -162,8 +162,6 @@ checkpoint/
 *.ckpt
 
 #tsv
-*.tsv
-*.txt
 
 #secret 
 .env
