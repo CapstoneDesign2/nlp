@@ -93,7 +93,7 @@ class Model(LightningModule):
         total_acc = accuracy_score(y_true, y_pred)
         total_prec= precision_score(y_true, y_pred, average='macro')
         total_rec = recall_score(y_true, y_pred, average='macro')
-        total_prec = f1_score(y_true, y_pred, average='macro')
+        total_f1 = f1_score(y_true, y_pred, average='macro')
         hamming = hamming_loss(y_true, y_pred)
 
         # total_prec= precision_score(y_true, y_pred, labels=self.LABEL, average='macro')
@@ -105,6 +105,7 @@ class Model(LightningModule):
         self.log(state+'_acc', float(total_acc), on_epoch=True, prog_bar=True)
         self.log(state+'_prec', float(total_prec), on_epoch=True, prog_bar=True)
         self.log(state+'_rec', float(total_rec), on_epoch=True, prog_bar=True)
+        self.log(state+'_f1', float(total_f1), on_epoch=True, prog_bar=True)
         self.log(state+'_hamming', float(hamming), on_epoch=True, prog_bar=True)
         
         #file close

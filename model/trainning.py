@@ -76,7 +76,7 @@ checkpoint_callback = ModelCheckpoint(
         save_top_k=5,
         monitor="val_loss",
         mode="min",
-        filename="{epoch}-{val_hamming:.2f}"
+        filename="{epoch}-{val_hamming:.5f}"
     )
 
 early_stop_callback = EarlyStopping(
